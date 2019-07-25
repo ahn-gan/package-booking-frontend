@@ -22,6 +22,11 @@
           <span>{{scope.row.status === 0 ? '已取件' : scope.row.status === 1 ? '已预约' : '未预约'}}</span>
         </template>
       </el-table-column>
+      <el-table-column label="预约时间" align="center">
+        <template slot-scope="scope">
+          <span v-if="scope.row.appointmentTime !== null">{{scope.row.appointmentTime.replace('T', ' ').substr(0, 19)}}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="操作" align="center">
         <template slot-scope="scope">
           <span v-if="scope.row.status !== 0"><el-button type="primary" size="small" plain @click="updateStatus(scope.row)">确定收货</el-button></span>
@@ -69,7 +74,7 @@
         try {
           let response = await updatePackages(updatedData);
           if (response) {
-            this.$message.success('保存成功');
+            this.$message.success('收货成功');
             this.getAllPackages();
           }
         } catch (e) {
@@ -83,11 +88,17 @@
     computed: {
       status() {
         return this.$store.state.status;
+      },
+      refreshFlag() {
+        return this.$store.state.toRefresh;
       }
     },
     watch: {
       status: function (newValue) {
         this.filterPackages(newValue);
+      },
+      refreshFlag: function(newValue) {
+        this.getAllPackages();
       }
     }
   }

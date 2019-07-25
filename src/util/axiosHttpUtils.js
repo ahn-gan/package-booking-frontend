@@ -21,8 +21,14 @@ async function updatePackages(params) {
   return response.data || [];
 }
 
+async function createPackages(params) {
+  let response = await axios.post(`/packages`, params);
+  return response.data || [];
+}
+
 export {
   getAllPackages,
   getPackagesByParams,
-  updatePackages
+  updatePackages,
+  createPackages
 }

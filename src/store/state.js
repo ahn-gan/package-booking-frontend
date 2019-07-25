@@ -1,6 +1,7 @@
 
 const state = {
-  status: ''
+  status: '',
+  toRefresh: ''
 }
 
 export default state;

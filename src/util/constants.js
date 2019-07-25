@@ -5,3 +5,5 @@ export const NO_ORDERED = 2; // 未预约
 export const ALL_STATUS = -1;
 
 export const CHANGE_STATE = 'change_status';
+
+export const REFRESH_DATA = 'refresh_data';
