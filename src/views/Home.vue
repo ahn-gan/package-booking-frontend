@@ -53,6 +53,11 @@
             <span>{{scope.row.status === 1 ? '待取件' : '已取件'}}</span>
           </template>
         </el-table-column>
+        <el-table-column label="操作" align="center">
+          <template slot-scope="scope">
+            <span v-if="scope.row.status === 1"><el-button type="primary" size="small" plain @click="updateStatus(scope.row)">确定收货</el-button></span>
+          </template>
+        </el-table-column>
       </el-table>
       <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="500px" top="20px" @close='closeDialog'>
         <el-form label-width="80px" label-position="left" :model="updatePackage" class="dialog-form" ref="updateForm">
@@ -150,15 +155,21 @@
         this.dialogVisible = false;
       },
       async handleSave() {
-        this.$message.info('to be continue');
         try {
           let response = await updatePackages(this.updatePackage);
           if (response) {
+            this.dialogVisible = false;
+            this.$message.success('保存成功');
             this.getAllPackages();
           }
         } catch (e) {
           console.log(e);
         }
+      },
+      updateStatus(rowData) {
+        rowData.status = 0;
+        this.updatePackage = rowData;
+        this.handleSave();
       }
     },
     mounted() {
