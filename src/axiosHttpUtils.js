@@ -12,10 +12,7 @@ async function getAllPackages() {
 }
 
 async function getPackagesByParams(params) {
-  let url = `/packages?1=1`;
-  url += params.status !== '' ? `&status=${params.status}` : '';
-  url += params.hasOrdered !== '' ? `&hasOrdered=${params.hasOrdered}` : '';
-  let response = await axios.get(url);
+  let response = await axios.get(`/packages?status=${params}`);
   return response.data || [];
 }
 

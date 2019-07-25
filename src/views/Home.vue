@@ -1,56 +1,44 @@
 <template>
   <el-row class="home">
     <el-row>
-      <el-form label-width="70px" label-position="left" :model="searchParams" ref="searchForm">
-        <el-col :span="4">
-          <el-form-item label="包裹状态">
-            <el-radio-group v-model="searchParams.status" size="small">
-              <el-radio label="1" class="radio-margin">已取件</el-radio>
-              <el-radio label="0" class="radio-margin">待取件</el-radio>
-              <el-radio label="" class="radio-margin">所有</el-radio>
-            </el-radio-group>
-          </el-form-item>
-        </el-col>
-        <el-col :span="1">&nbsp;</el-col>
-        <el-col :span="4">
-          <el-form-item label="预约状态">
-            <el-radio-group v-model="searchParams.hasOrdered" size="small">
-              <el-radio label="1" class="radio-margin">已预约</el-radio>
-              <el-radio label="0" class="radio-margin">未预约</el-radio>
-              <el-radio label="" class="radio-margin">所有</el-radio>
-            </el-radio-group>
-          </el-form-item>
-        </el-col>
-      </el-form>
+      <el-col :span="12">&nbsp;</el-col>
       <el-col :span="2">
-        <el-button type="primary" size="small" icon="el-icon-search" class="search-btn" @click="filterPackages">搜索
-        </el-button>
+        <el-button type="primary" size="small" class="search-btn" @click="getAllPackages">ALL</el-button>
       </el-col>
       <el-col :span="2">
-        <el-button type="primary" size="small" icon="el-icon-edit" class="search-btn" @click="addPackage">添加</el-button>
+        <el-button type="primary" size="small" class="search-btn" @click="getOrderedPackages">已预约</el-button>
+      </el-col>
+      <el-col :span="2">
+        <el-button type="primary" size="small" class="search-btn" @click="getFetchedPackages">已取件</el-button>
+      </el-col>
+      <el-col :span="2">
+        <el-button type="primary" size="small" class="search-btn" @click="getNoOrderedPackages">未预约</el-button>
+      </el-col>
+      <el-col :span="2">
+        <el-button type="primary" size="small" class="search-btn" @click="addPackage">添加</el-button>
       </el-col>
     </el-row>
     <el-row>
       <el-table :data="allPackages" style="width: 100%" @row-dblclick="editRow">
         <el-table-column type="selection" width="40" fixed></el-table-column>
-        <el-table-column label="运单号" sortable align="center">
+        <el-table-column label="运单号" sortable prop="logisticsNumber" align="center">
           <template slot-scope="scope">
             <span>{{scope.row.logisticsNumber}}</span>
           </template>
         </el-table-column>
-        <el-table-column label="客户姓名" sortable align="center">
+        <el-table-column label="客户姓名" sortable prop="name" align="center">
           <template slot-scope="scope">
             <span>{{scope.row.customer.name}}</span>
           </template>
         </el-table-column>
-        <el-table-column label="客户手机" sortable align="center">
+        <el-table-column label="客户手机" sortable prop="mobilePhone" align="center">
           <template slot-scope="scope">
             <span>{{scope.row.customer.mobilePhone}}</span>
           </template>
         </el-table-column>
-        <el-table-column label="状态" sortable align="center">
+        <el-table-column label="状态" align="center">
           <template slot-scope="scope">
-            <span>{{scope.row.status === 1 ? '待取件' : '已取件'}}</span>
+            <span>{{scope.row.status === 0 ? '已取件' : scope.row.status === 1 ? '已预约' : '未预约'}}</span>
           </template>
         </el-table-column>
         <el-table-column label="操作" align="center">
@@ -94,10 +82,7 @@
     data() {
       return {
         allPackages: [],
-        searchParams: {
-          status: '',
-          hasOrdered: ''
-        },
+        filterStatus: -1,
         dialogTitle: '',
         dialogVisible: false,
         formEditable: false,
@@ -122,9 +107,21 @@
           console.log(e);
         }
       },
-      async filterPackages() {
+      getOrderedPackages () {
+        this.filterStatus = 1;
+        this.filterPackages(this.filterStatus);
+      },
+      getFetchedPackages() {
+        this.filterStatus = 0;
+        this.filterPackages(this.filterStatus);
+      },
+      getNoOrderedPackages() {
+        this.filterStatus = 2;
+        this.filterPackages(this.filterStatus);
+      },
+      async filterPackages(status) {
         try {
-          let response = await getPackagesByParams(this.searchParams);
+          let response = await getPackagesByParams(status);
           if (response) {
             this.allPackages = response;
           }
