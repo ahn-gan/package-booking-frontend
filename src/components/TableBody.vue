@@ -1,6 +1,6 @@
 <template>
   <el-row>
-    <el-table :data="allPackages" style="width: 100%" @row-dblclick="editRow">
+    <el-table :data="allPackages" style="width: 100%">
       <el-table-column type="selection" width="40" fixed></el-table-column>
       <el-table-column label="运单号" sortable prop="logisticsNumber" align="center">
         <template slot-scope="scope">
@@ -28,30 +28,19 @@
         </template>
       </el-table-column>
     </el-table>
-    <DetailDialog></DetailDialog>
   </el-row>
 </template>
 
 <script>
-  import DetailDialog from './DetailDialog'
-  import {getAllPackages, getPackagesByParams} from "../util/axiosHttpUtils";
+  import {getAllPackages, getPackagesByParams, updatePackages} from "../util/axiosHttpUtils";
 
   export default {
-    components: {
-      DetailDialog
-    },
     data() {
       return {
         allPackages: []
       }
     },
     methods: {
-      editRow(row, event) {
-        // this.dialogTitle = '修改';
-        // this.formEditable = true;
-        // this.updatePackage = JSON.parse(JSON.stringify(row));
-        // this.dialogVisible = true;
-      },
       async getAllPackages() {
         try {
           let response = await getAllPackages();
@@ -72,6 +61,21 @@
           console.log(e);
         }
       },
+      updateStatus(rowData) {
+        rowData.status = 0;
+        this.handleSave(rowData);
+      },
+      async handleSave(updatedData) {
+        try {
+          let response = await updatePackages(updatedData);
+          if (response) {
+            this.$message.success('保存成功');
+            this.getAllPackages();
+          }
+        } catch (e) {
+          console.log(e);
+        }
+      }
     },
     mounted() {
       this.getAllPackages();
