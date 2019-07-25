@@ -19,7 +19,13 @@ async function getPackagesByParams(params) {
   return response.data || [];
 }
 
+async function updatePackages(params) {
+  let response = await axios.put(`/packages/${params.id}`, params);
+  return response.data || [];
+}
+
 export {
   getAllPackages,
-  getPackagesByParams
+  getPackagesByParams,
+  updatePackages
 }

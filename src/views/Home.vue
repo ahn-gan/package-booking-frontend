@@ -6,7 +6,7 @@
           <el-form-item label="包裹状态">
             <el-radio-group v-model="searchParams.status" size="small">
               <el-radio label="1" class="radio-margin">已取件</el-radio>
-              <el-radio label="0" class="radio-margin">代取件</el-radio>
+              <el-radio label="0" class="radio-margin">待取件</el-radio>
               <el-radio label="" class="radio-margin">所有</el-radio>
             </el-radio-group>
           </el-form-item>
@@ -21,13 +21,17 @@
             </el-radio-group>
           </el-form-item>
         </el-col>
-        <el-col :span="2">
-          <el-button type="primary" size="small" icon="el-icon-search" class="search-btn" @click="filterPackages">搜索</el-button>
-        </el-col>
       </el-form>
+      <el-col :span="2">
+        <el-button type="primary" size="small" icon="el-icon-search" class="search-btn" @click="filterPackages">搜索
+        </el-button>
+      </el-col>
+      <el-col :span="2">
+        <el-button type="primary" size="small" icon="el-icon-edit" class="search-btn" @click="addPackage">添加</el-button>
+      </el-col>
     </el-row>
     <el-row>
-      <el-table :data="allPackages" style="width: 100%">
+      <el-table :data="allPackages" style="width: 100%" @row-dblclick="editRow">
         <el-table-column type="selection" width="40" fixed></el-table-column>
         <el-table-column label="运单号" sortable align="center">
           <template slot-scope="scope">
@@ -46,16 +50,39 @@
         </el-table-column>
         <el-table-column label="状态" sortable align="center">
           <template slot-scope="scope">
-            <span>{{scope.row.status === 1 ? '待取' : '已取'}}</span>
+            <span>{{scope.row.status === 1 ? '待取件' : '已取件'}}</span>
           </template>
         </el-table-column>
       </el-table>
+      <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="500px" top="20px" @close='closeDialog'>
+        <el-form label-width="80px" label-position="left" :model="updatePackage" class="dialog-form" ref="updateForm">
+          <el-form-item label="运单号">
+            <el-input v-model="updatePackage.logisticsNumber" :disabled="formEditable"></el-input>
+          </el-form-item>
+          <el-form-item label="客户姓名">
+            <el-input v-model="updatePackage.customer.name"></el-input>
+          </el-form-item>
+          <el-form-item label="手机号码">
+            <el-input v-model="updatePackage.customer.mobilePhone"></el-input>
+          </el-form-item>
+          <el-form-item label="状态">
+            <el-radio-group v-model="updatePackage.status">
+              <el-radio :label="1">待取件</el-radio>
+              <el-radio :label="0">已取件</el-radio>
+            </el-radio-group>
+          </el-form-item>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+              <el-button @click="closeDialog">取消</el-button>
+              <el-button type="primary" @click="handleSave">保存</el-button>
+        </span>
+      </el-dialog>
     </el-row>
   </el-row>
 </template>
 
 <script>
-  import {getAllPackages, getPackagesByParams} from "../axiosHttpUtils";
+  import {getAllPackages, getPackagesByParams, updatePackages} from "../axiosHttpUtils";
 
   export default {
     name: 'home',
@@ -65,6 +92,17 @@
         searchParams: {
           status: '',
           hasOrdered: ''
+        },
+        dialogTitle: '',
+        dialogVisible: false,
+        formEditable: false,
+        updatePackage: {
+          logisticsNumber: '',
+          status: '',
+          customer: {
+            name: '',
+            mobilePhone: ''
+          }
         }
       }
     },
@@ -79,11 +117,44 @@
           console.log(e);
         }
       },
-      async filterPackages () {
+      async filterPackages() {
         try {
           let response = await getPackagesByParams(this.searchParams);
           if (response) {
             this.allPackages = response;
+          }
+        } catch (e) {
+          console.log(e);
+        }
+      },
+      addPackage() {
+        this.$message.info('to be continue');
+        this.dialogVisible = true;
+        this.formEditable = false;
+      },
+      editRow(row, event) {
+        this.dialogTitle = '修改';
+        this.formEditable = true;
+        this.updatePackage = JSON.parse(JSON.stringify(row));
+        this.dialogVisible = true;
+      },
+      closeDialog() {
+        this.updatePackage = {
+          logisticsNumber: '',
+          status: '',
+          customer: {
+            name: '',
+            mobilePhone: ''
+          }
+        };
+        this.dialogVisible = false;
+      },
+      async handleSave() {
+        this.$message.info('to be continue');
+        try {
+          let response = await updatePackages(this.updatePackage);
+          if (response) {
+            this.getAllPackages();
           }
         } catch (e) {
           console.log(e);
